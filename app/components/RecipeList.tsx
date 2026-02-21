@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,9 +16,17 @@ type RecipeListProps = {
   publicRecipes: Recipe[];
   userRecipes: Recipe[];
   currentUser: { id: string; username: string; role: string } | null | undefined;
+  showFilters?: boolean;
+  setShowFilters?: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function RecipeList({ publicRecipes, userRecipes, currentUser }: RecipeListProps) {
+export default function RecipeList({
+  publicRecipes,
+  userRecipes,
+  currentUser,
+  showFilters,
+  setShowFilters,
+}: RecipeListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [localUserRecipes, setLocalUserRecipes] = useState<Recipe[]>(userRecipes);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +47,7 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
     ingredientFilters,
     ingredientSearch,
     showSuggestions,
-    showFilters,
+    showFilters: hookShowFilters,
     searchInputRef,
     suggestionsRef,
     suggestions,
@@ -50,7 +58,9 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
     handleIngredientSearchChange,
     handleFilterToggle,
     setShowSuggestions,
-  } = useRecipeFilters(allRecipes);
+  } = useRecipeFilters(allRecipes, { showFilters, setShowFilters });
+
+  const effectiveShowFilters = showFilters ?? hookShowFilters;
 
   useEffect(() => {
     const current = localUserRecipes.find((recipe) => recipe.id === editingId);
@@ -181,14 +191,50 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
               : "Böngészd a publikus recepteket."}
           </p>
         </div>
-        {!currentUser && (
-          <Link
-            href="/auth"
-            className="rounded-lg border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
-          >
-            Bejelentkezés
-          </Link>
-        )}
+
+        <div className="flex items-start gap-3">
+          {allRecipes.length > 0 && (
+            <button
+              type="button"
+              onClick={handleFilterToggle}
+              className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
+            >
+              {effectiveShowFilters ? (
+                <>
+                  Bezárás
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  Szűrők
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 4a1 1 0 00-1 1v2.586a1 1 0 00.293.707l6.414 6.414v7.586a1 1 0 001 1h2a1 1 0 001-1v-7.586l6.414-6.414A1 1 0 0021 7.586V5a1 1 0 00-1-1h-18z"
+                    />
+                  </svg>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Hibaüzenet */}
@@ -236,51 +282,6 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
       {/* Szerkesztő form */}
       {editingId && <EditingForm />}
 
-      {/* Szűrő gomb */}
-      {allRecipes.length > 0 && (
-        <div className="mt-4 flex justify-end">
-          <button
-            type="button"
-            onClick={handleFilterToggle}
-            className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
-          >
-            {showFilters ? (
-              <>
-                Bezárás
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </>
-            ) : (
-              <>
-                Szűrők
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 4a1 1 0 00-1 1v2.586a1 1 0 00.293.707l6.414 6.414v7.586a1 1 0 001 1h2a1 1 0 001-1v-7.586l6.414-6.414A1 1 0 0021 7.586V5a1 1 0 00-1-1h-18z"
-                  />
-                </svg>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
       {/* Receptek megjelenítése */}
       {allRecipes.length === 0 ? (
         <div className="mt-6 text-center">
@@ -294,7 +295,7 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
             </p>
           )}
         </div>
-      ) : showFilters ? (
+      ) : effectiveShowFilters ? (
         <div className="mt-4 flex flex-col gap-6 md:flex-row-reverse">
           <FilterSidebar
             tagFilters={tagFilters}

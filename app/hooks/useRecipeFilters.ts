@@ -2,12 +2,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Recipe } from "../lib/store";
 import { getAllIngredients, filterIngredientSuggestions, recipeMatchesIngredients } from "../lib/ingredients";
 
-export function useRecipeFilters(recipes: Recipe[]) {
+type UseRecipeFiltersOpts = {
+  showFilters?: boolean;
+  setShowFilters?: (v: boolean) => void;
+};
+
+export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts) {
   const [tagFilters, setTagFilters] = useState<string[]>([]);
   const [ingredientFilters, setIngredientFilters] = useState<string[]>([]);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [internalShowFilters, setInternalShowFilters] = useState(false);
+  const showFilters = opts?.showFilters ?? internalShowFilters;
+  const setShowFilters = opts?.setShowFilters ?? setInternalShowFilters;
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 

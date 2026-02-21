@@ -2,6 +2,7 @@
 
 import Header from "@/app/components/Header";
 import RecipeList from "@/app/components/RecipeList";
+import { useState } from "react";
 import type { Recipe } from "../lib/store";
 
 type PageContentProps = {
@@ -11,10 +12,18 @@ type PageContentProps = {
 };
 
 export default function PageContent({ currentUser, publicRecipes, userRecipes }: PageContentProps) {
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <>
-      <Header currentUser={currentUser} />
-      <RecipeList publicRecipes={publicRecipes} userRecipes={userRecipes} currentUser={currentUser} />
+      <Header currentUser={currentUser} showFilters={showFilters} setShowFilters={setShowFilters} />
+      <RecipeList
+        publicRecipes={publicRecipes}
+        userRecipes={userRecipes}
+        currentUser={currentUser}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+      />
     </>
   );
 }
