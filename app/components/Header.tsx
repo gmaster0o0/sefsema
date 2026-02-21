@@ -2,16 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction } from "react";
 import { logoutAction } from "../actions/auth";
 
 type HeaderProps = {
   currentUser?: { id: string; username: string; role: string } | null;
-  showFilters: boolean;
-  setShowFilters: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function Header({ currentUser, showFilters, setShowFilters }: HeaderProps) {
+export default function Header({ currentUser }: HeaderProps) {
   return (
     <header className="grid grid-cols-4 gap-6 rounded-3xl border border-black/10 bg-[#3B585E] p-6 shadow-sm">
       {/* Left: Logo (spans 2 rows) */}
@@ -77,13 +74,6 @@ export default function Header({ currentUser, showFilters, setShowFilters }: Hea
           placeholder="Keress receptek..."
           className="flex-1 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
         />
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="rounded-lg px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity whitespace-nowrap"
-          style={{ backgroundColor: "#e09849" }}
-        >
-          Részletes keresés
-        </button>
       </div>
     </header>
   );
