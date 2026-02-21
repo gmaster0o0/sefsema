@@ -9,16 +9,20 @@ import { getAllIngredients, filterIngredientSuggestions, recipeMatchesIngredient
 
 type PublicRecipesProps = {
   recipes: Recipe[];
+  showFilters?: boolean;
 };
 
-export default function PublicRecipes({ recipes }: PublicRecipesProps) {
+export default function PublicRecipes({ recipes, showFilters = false }: PublicRecipesProps) {
+  const [localShowFilters, setLocalShowFilters] = useState(false);
   const [tagFilters, setTagFilters] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
   const [ingredientFilters, setIngredientFilters] = useState<string[]>([]);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Usar el estado local o el prop pasado desde Header
+  const isFiltersVisible = showFilters || localShowFilters;
 
   // Kinyerjük az összes egyedi alapanyagot
   const allIngredients = useMemo(() => getAllIngredients(recipes), [recipes]);
@@ -54,17 +58,6 @@ export default function PublicRecipes({ recipes }: PublicRecipesProps) {
     setTagFilters((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
-  const handleFilterToggle = () => {
-    if (showFilters) {
-      setTagFilters([]);
-      setIngredientFilters([]);
-      setIngredientSearch("");
-      setShowFilters(false);
-      return;
-    }
-    setShowFilters(true);
-  };
-
   const addIngredientFilter = (ingredient: string) => {
     if (!ingredientFilters.includes(ingredient)) {
       setIngredientFilters((prev) => [...prev, ingredient]);
@@ -97,43 +90,53 @@ export default function PublicRecipes({ recipes }: PublicRecipesProps) {
 
   return (
     <div className="mt-4">
-      <div className="mb-4 flex items-center">
-        <div className="w-full md:w-64 lg:w-72">
+      {/* Szűrési gomb */}
+      {recipes.length > 0 ? (
+        <div className="mb-4 flex justify-end">
           <button
             type="button"
-            onClick={handleFilterToggle}
-            className="flex w-full items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
+            onClick={() => setLocalShowFilters(!localShowFilters)}
+            className="flex items-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
           >
-            {showFilters ? "Bezárás" : "Szűrők"}
-            {showFilters ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="h-5 w-5"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            {isFiltersVisible ? (
+              <>
+                Bezárás
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </>
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="h-5 w-5"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M6 12h12m-6 6h6" />
-              </svg>
+              <>
+                Szűrők
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 4a1 1 0 00-1 1v2.586a1 1 0 00.293.707l6.414 6.414v7.586a1 1 0 001 1h2a1 1 0 001-1v-7.586l6.414-6.414A1 1 0 0021 7.586V5a1 1 0 00-1-1h-18z"
+                  />
+                </svg>
+              </>
             )}
           </button>
         </div>
-      </div>
+      ) : null}
 
-      {showFilters ? (
-        <div className="flex flex-col gap-6 md:flex-row">
+      {isFiltersVisible ? (
+        <div className="flex flex-col gap-6 md:flex-row-reverse">
           <aside className="md:w-64 lg:w-72">
             <div className="rounded-2xl border border-black/10 bg-zinc-50 p-4">
               {/* Tag szűrő */}
