@@ -116,47 +116,7 @@ export const memoryUserRepo: UserRepository = {
   },
 };
 
-export const memoryEventRepo: EventRepository = {
-  async createEvent(input) {
-    const event: Event = {
-      ...input,
-      id: randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-
-    events.set(event.id, event);
-    return event;
-  },
-
-  async updateEvent(id, updates) {
-    const existing = events.get(id);
-    if (!existing) {
-      return null;
-    }
-
-    const updated: Event = {
-      ...existing,
-      ...updates,
-    };
-
-    events.set(id, updated);
-    return updated;
-  },
-
-  async deleteEvent(id) {
-    return events.delete(id);
-  },
-
-  async listEvents() {
-    return Array.from(events.values()).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-  },
-
-  async listPublicEvents() {
-    return Array.from(events.values())
-      .filter((event) => event.isPublic)
-      .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-  },
-};
+/* Event code removed — not used in this codebase */
 
 export const memoryRecipeRepo: RecipeRepository = {
   async createRecipe(input) {
