@@ -230,7 +230,7 @@ export const sessionStore = (() => {
   if (!USE_MONGO) return memorySessionStore;
 
   let impl: {
-    create: (userId: string, ttlMs: number) => Promise<string>;
+    create: (userId: string, ttlMs: number, type: "access" | "refresh", remember: boolean) => Promise<string>;
     get: (token: string) => Promise<Session | null>;
     delete: (token: string) => Promise<void>;
   } | null = null;

@@ -6,6 +6,8 @@ type Session = {
   token: string;
   userId: string;
   expiresAt: number;
+  type?: "access" | "refresh";
+  remember?: boolean;
 };
 
 interface MongoSession {

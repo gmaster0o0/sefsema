@@ -1,3 +1,23 @@
+let refreshPromise: Promise<boolean> | null = null;
+
+async function doRefresh(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const r = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
+      return r.ok;
+    } catch (e) {
+      return false;
+    } finally {
+      // clear the promise so future refreshes can run
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
 export async function fetchWithRefresh(input: RequestInfo, init?: RequestInit): Promise<Response> {
   const baseInit: RequestInit = {
     credentials: "include",
@@ -7,14 +27,13 @@ export async function fetchWithRefresh(input: RequestInfo, init?: RequestInit): 
   // First attempt
   let res = await fetch(input, baseInit);
 
-  // If unauthorized, try to refresh session and retry once
+  // If unauthorized, attempt a single refresh (single-flight) and retry once
   if (res.status === 401) {
+    const refreshed = await doRefresh();
+    if (!refreshed) return res;
+
+    // Retry original request once after successful refresh
     try {
-      const refresh = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
-      if (!refresh.ok) {
-        return res;
-      }
-      // Retry original request once after successful refresh
       res = await fetch(input, baseInit);
     } catch (err) {
       return res;
