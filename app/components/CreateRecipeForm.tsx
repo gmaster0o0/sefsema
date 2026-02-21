@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import type { RecipeState } from "../actions/recipes";
 import { createRecipeAction } from "../actions/recipes";
-import { TAG_GROUPS } from "../lib/tags";
+import TagSelector from "./TagSelector";
 
 const initialState: RecipeState = { ok: false, message: "" };
 
@@ -76,30 +76,7 @@ export default function CreateRecipeForm() {
         <div className="grid gap-3">
           <p className="text-sm font-semibold">Tagek</p>
           <input type="hidden" name="tags" value={selectedTags.join(", ")} />
-          {TAG_GROUPS.map((group) => (
-            <div key={group.label} className="grid gap-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">{group.label}</p>
-              <div className="flex flex-wrap gap-2">
-                {group.tags.map((tag) => {
-                  const isSelected = selectedTags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => toggleTag(tag)}
-                      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                        isSelected
-                          ? "border-black bg-black text-white"
-                          : "border-black/10 bg-white text-zinc-700 hover:bg-zinc-50"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+          <TagSelector variant="edit" selectedTags={selectedTags} onToggle={toggleTag} />
           <p className="text-xs text-zinc-400">Több taget is kiválaszthatsz.</p>
         </div>
         <label className="flex items-center gap-2 text-sm">

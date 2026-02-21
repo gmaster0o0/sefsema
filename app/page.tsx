@@ -1,12 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
-
-import RecipeManager from "@/app/components/RecipeManager";
-import PublicRecipes from "@/app/components/PublicRecipes";
-import Header from "@/app/components/Header";
 import PageContent from "./components/PageContent";
 import { getCurrentUser } from "./lib/auth";
-import { logoutAction } from "./actions/auth";
 import { memoryRecipeRepo } from "./lib/store";
 
 export default async function Home() {

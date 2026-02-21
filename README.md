@@ -7,7 +7,8 @@ and filtering by tags and ingredients.
 
 ## Key features
 
-- Public recipe list and dynamic recipe management.
+- Unified recipe list with public and personal recipes.
+- Ingredient search with suggestions.
 - Dedicated create page at `/create`.
 - Detail page at `/recept/[slug]`.
 - SEO-friendly URLs with unique slugs (accent removal).
