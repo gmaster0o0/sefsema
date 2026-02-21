@@ -51,6 +51,8 @@ type Session = {
   token: string;
   userId: string;
   expiresAt: number;
+  type?: "access" | "refresh";
+  remember?: boolean;
 };
 // Use globalThis to persist data across HMR in dev mode
 const globalForStore = globalThis as unknown as {
@@ -185,14 +187,21 @@ function cleanupExpiredSessions(): void {
 }
 
 export const memorySessionStore = {
-  async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access"): Promise<string> {
+  async create(
+    userId: string,
+    ttlMs: number,
+    type: "access" | "refresh" = "access",
+    remember: boolean = false,
+  ): Promise<string> {
     cleanupExpiredSessions();
     const token = randomUUID();
     sessions.set(token, {
       token,
       userId,
       expiresAt: Date.now() + ttlMs,
-    });
+      type,
+      remember,
+    } as Session);
     return token;
   },
 
@@ -235,9 +244,9 @@ export const sessionStore = (() => {
   }
 
   return {
-    async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access") {
+    async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access", remember: boolean = false) {
       const s = await load();
-      return s.create(userId, ttlMs, type);
+      return s.create(userId, ttlMs, type, remember);
     },
     async get(token: string) {
       const s = await load();

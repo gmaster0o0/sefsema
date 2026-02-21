@@ -32,6 +32,11 @@ function getString(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function getBool(formData: FormData, key: string): boolean {
+  const v = formData.get(key);
+  return v === "on" || v === "true" || v === "1";
+}
+
 export async function registerAction(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const candidate = {
     username: getString(formData, "username"),
@@ -63,7 +68,8 @@ export async function registerAction(_prevState: AuthState, formData: FormData):
     passwordHash,
   });
 
-  await createSession(user.id);
+  const remember = getBool(formData, "remember");
+  await createSession(user.id, remember);
   return { ok: true, message: "Registration complete. Session created." };
 }
 
@@ -88,7 +94,8 @@ export async function loginAction(_prevState: AuthState, formData: FormData): Pr
     return { ok: false, message: "Invalid email or password." };
   }
 
-  await createSession(user.id);
+  const remember = getBool(formData, "remember");
+  await createSession(user.id, remember);
   return { ok: true, message: "Signed in." };
 }
 

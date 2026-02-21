@@ -67,6 +67,12 @@ export default function AuthForms() {
             minLength={8}
           />
         </label>
+        {isLogin ? (
+          <label className="flex items-center gap-2 text-sm">
+            <input name="remember" type="checkbox" className="h-4 w-4" />
+            <span>Remember me</span>
+          </label>
+        ) : null}
         {!isLogin ? (
           <label className="grid gap-1 text-sm">
             Confirm password

@@ -10,6 +10,8 @@ const REFRESH_COOKIE = "refresh";
 const ACCESS_TTL_MS = 1000 * 60 * 15;
 // Refresh token TTL (7 days)
 const REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+// Remember-me refresh TTL (30 days)
+const REMEMBER_REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export type SessionUser = ReturnType<typeof toPublicUser>;
 
@@ -47,10 +49,11 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return timingSafeEqual(a, b);
 }
 
-export async function createSession(userId: string): Promise<void> {
+export async function createSession(userId: string, remember: boolean = false): Promise<void> {
   // Create short-lived access token and long-lived refresh token
-  const accessToken = await sessionStore.create(userId, ACCESS_TTL_MS, "access");
-  const refreshToken = await sessionStore.create(userId, REFRESH_TTL_MS, "refresh");
+  const accessToken = await sessionStore.create(userId, ACCESS_TTL_MS, "access", false);
+  const refreshTtl = remember ? REMEMBER_REFRESH_TTL_MS : REFRESH_TTL_MS;
+  const refreshToken = await sessionStore.create(userId, refreshTtl, "refresh", remember);
 
   const store = await cookies();
   store.set(SESSION_COOKIE, accessToken, {
@@ -62,7 +65,7 @@ export async function createSession(userId: string): Promise<void> {
   store.set(REFRESH_COOKIE, refreshToken, {
     httpOnly: true,
     sameSite: "lax",
-    maxAge: REFRESH_TTL_MS / 1000,
+    maxAge: refreshTtl / 1000,
     path: "/",
   });
 }
@@ -113,9 +116,12 @@ export async function refreshSession(): Promise<boolean> {
   const session = await sessionStore.get(refresh);
   if (!session) return false;
 
-  // create new tokens and delete old refresh token
-  const accessToken = await sessionStore.create(session.userId, ACCESS_TTL_MS, "access");
-  const newRefresh = await sessionStore.create(session.userId, REFRESH_TTL_MS, "refresh");
+  // determine refresh TTL based on remembered flag on stored session
+  const refreshTtl = session.remember ? REMEMBER_REFRESH_TTL_MS : REFRESH_TTL_MS;
+
+  // create new tokens and delete old refresh token (rotation)
+  const accessToken = await sessionStore.create(session.userId, ACCESS_TTL_MS, "access", false);
+  const newRefresh = await sessionStore.create(session.userId, refreshTtl, "refresh", !!session.remember);
   await sessionStore.delete(refresh);
 
   store.set(SESSION_COOKIE, accessToken, {

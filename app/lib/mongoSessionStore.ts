@@ -14,6 +14,7 @@ interface MongoSession {
   userId: string;
   expiresAt: Date;
   type?: "access" | "refresh";
+  remember?: boolean;
 }
 
 const COLLECTION_NAME = "sessions";
@@ -31,7 +32,12 @@ async function ensureIndexes(): Promise<void> {
 }
 
 export const mongoSessionStore = {
-  async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access"): Promise<string> {
+  async create(
+    userId: string,
+    ttlMs: number,
+    type: "access" | "refresh" = "access",
+    remember: boolean = false,
+  ): Promise<string> {
     await ensureIndexes();
     const db = await getMongoDb();
     const col = db.collection<MongoSession>(COLLECTION_NAME) as unknown as Collection<OptionalId<MongoSession>>;
@@ -43,6 +49,7 @@ export const mongoSessionStore = {
       userId,
       expiresAt: new Date(Date.now() + ttlMs),
       type,
+      remember,
     };
 
     await col.insertOne(doc);
@@ -59,6 +66,8 @@ export const mongoSessionStore = {
       token: token,
       userId: doc.userId,
       expiresAt: doc.expiresAt.getTime(),
+      type: doc.type,
+      remember: !!doc.remember,
     };
   },
 
