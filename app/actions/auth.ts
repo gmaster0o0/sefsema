@@ -3,7 +3,7 @@
 import { z } from "zod";
 
 import { createSession, destroySession, hashPassword, verifyPassword } from "../lib/auth";
-import { memoryUserRepo } from "../lib/store";
+import { userRepo } from "../lib/store";
 
 export type AuthState = {
   ok: boolean;
@@ -45,18 +45,18 @@ export async function registerAction(_prevState: AuthState, formData: FormData):
     return { ok: false, message: "Invalid input. Check username, email, password." };
   }
 
-  const existingEmail = await memoryUserRepo.findByEmail(parsed.data.email);
+  const existingEmail = await userRepo.findByEmail(parsed.data.email);
   if (existingEmail) {
     return { ok: false, message: "Email already registered." };
   }
 
-  const existingUsername = await memoryUserRepo.findByUsername(parsed.data.username);
+  const existingUsername = await userRepo.findByUsername(parsed.data.username);
   if (existingUsername) {
     return { ok: false, message: "Username already taken." };
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
-  const user = await memoryUserRepo.createUser({
+  const user = await userRepo.createUser({
     username: parsed.data.username,
     email: parsed.data.email,
     role: "user",
@@ -78,7 +78,7 @@ export async function loginAction(_prevState: AuthState, formData: FormData): Pr
     return { ok: false, message: "Invalid login input." };
   }
 
-  const user = await memoryUserRepo.findByEmail(parsed.data.email);
+  const user = await userRepo.findByEmail(parsed.data.email);
   if (!user) {
     return { ok: false, message: "Invalid email or password." };
   }

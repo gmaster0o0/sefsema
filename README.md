@@ -76,3 +76,4 @@ npm run dev
 
 This codebase was produced with an AI assistant (GitHub Copilot) under human supervision
 as an experimental effort, and was manually reviewed.
+Migration and refactor also produced by AI with human supervision.

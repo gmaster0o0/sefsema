@@ -276,6 +276,47 @@ export const memorySessionStore = {
   },
 };
 
+// Export a `userRepo` that delegates to either the in-memory or Mongo implementation.
+// We avoid statically importing the Mongo implementation because `app/lib/mongodb.ts`
+// throws if `MONGODB_URI` / `MONGODB_DB` are not set. Instead load dynamically
+// only when `USE_MONGO` is true.
+export const userRepo: UserRepository = (() => {
+  if (!USE_MONGO) return memoryUserRepo;
+
+  let impl: UserRepository | null = null;
+
+  async function load() {
+    if (!impl) {
+      const mod = await import("./mongoUserRepo");
+      impl = mod.mongoUserRepo;
+    }
+    return impl as UserRepository;
+  }
+
+  return {
+    async createUser(input) {
+      const r = await load();
+      return r.createUser(input);
+    },
+    async findByEmail(email) {
+      const r = await load();
+      return r.findByEmail(email);
+    },
+    async findByUsername(username) {
+      const r = await load();
+      return r.findByUsername(username);
+    },
+    async getById(id) {
+      const r = await load();
+      return r.getById(id);
+    },
+    async listUsers() {
+      const r = await load();
+      return r.listUsers();
+    },
+  } as UserRepository;
+})();
+
 export function toPublicUser(user: User): PublicUser {
   const { passwordHash, ...rest } = user;
   return rest;

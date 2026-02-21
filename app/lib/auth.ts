@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-import { memorySessionStore, memoryUserRepo, toPublicUser } from "./store";
+import { memorySessionStore, toPublicUser, userRepo } from "./store";
 
 const SESSION_COOKIE = "session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -76,7 +76,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     return null;
   }
 
-  const user = await memoryUserRepo.getById(session.userId);
+  const user = await userRepo.getById(session.userId);
 
   if (!user) {
     return null;
