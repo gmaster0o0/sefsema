@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import RecipeManager from "@/app/components/RecipeManager";
@@ -18,11 +19,20 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 px-6 py-12 text-zinc-900">
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-10">
-        <header className="flex flex-col gap-6 rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-zinc-400">Recept megosztó alkalmazás</p>
-              <h1 className="text-4xl font-semibold leading-tight">Publikus receptek</h1>
+        <header className="flex flex-col gap-6 rounded-3xl border border-black/10 bg-[#3B585E] p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/sefsema_final_v3.png"
+                alt="Séfséma logo"
+                width={512}
+                height={512}
+                className="h-40 w-40 object-contain sm:h-48 sm:w-48"
+                priority
+              />
+              <p className="max-w-xs text-base text-zinc-100">
+                Saját receptek megosztása és mások receptjeinek felfedezése
+              </p>
             </div>
             <div className="flex items-center gap-3 text-sm">
               {currentUser ? (
@@ -55,9 +65,6 @@ export default async function Home() {
               )}
             </div>
           </div>
-          <p className="max-w-2xl text-base text-zinc-600">
-            Példa alkalmazás: az adatok törlődnek a dev szerver újraindításakor. Készíts recepteket képekkel!
-          </p>
         </header>
 
         <section className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm">
