@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-import { memoryRecipeRepo } from "@/app/lib/store";
+import { getRecipeRepo } from "@/app/lib/getRecipeRepo";
 
 type RecipePageProps = {
   params: Promise<{ slug: string }>;
@@ -10,7 +10,8 @@ type RecipePageProps = {
 
 export default async function RecipePage({ params }: RecipePageProps) {
   const { slug } = await params;
-  const recipe = await memoryRecipeRepo.findBySlug(slug);
+  const recipeRepo = await getRecipeRepo();
+  const recipe = await recipeRepo.findBySlug(slug);
 
   if (!recipe) {
     notFound();

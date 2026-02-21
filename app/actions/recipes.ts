@@ -3,7 +3,7 @@
 import { z } from "zod";
 
 import { getCurrentUser } from "../lib/auth";
-import { memoryRecipeRepo } from "../lib/store";
+import { getRecipeRepo } from "../lib/getRecipeRepo";
 import { generateUniqueSlug } from "../lib/slug";
 
 export type RecipeState = {
@@ -75,12 +75,13 @@ export async function createRecipeAction(_prevState: RecipeState, formData: Form
   const imageUrl = parsed.data.imageUrl || generateImageUrl(parsed.data.title);
 
   // Egyedi slug generálása
+  const recipeRepo = await getRecipeRepo();
   const slug = await generateUniqueSlug(parsed.data.title, async (candidateSlug) => {
-    const existing = await memoryRecipeRepo.findBySlug(candidateSlug);
+    const existing = await recipeRepo.findBySlug(candidateSlug);
     return existing !== null;
   });
 
-  await memoryRecipeRepo.createRecipe({
+  await recipeRepo.createRecipe({
     userId: currentUser.id,
     title: parsed.data.title,
     slug,
@@ -101,7 +102,8 @@ export async function updateRecipeAction(formData: FormData): Promise<void> {
   }
 
   // A jelenlegi recept adatainak lekérése
-  const currentRecipe = await memoryRecipeRepo.listRecipes().then((recipes) => recipes.find((r) => r.id === id));
+  const recipeRepo = await getRecipeRepo();
+  const currentRecipe = await recipeRepo.listRecipes().then((recipes) => recipes.find((r) => r.id === id));
   if (!currentRecipe) {
     return;
   }
@@ -140,14 +142,14 @@ export async function updateRecipeAction(formData: FormData): Promise<void> {
   const slug = await generateUniqueSlug(
     parsed.data.title,
     async (candidateSlug) => {
-      const existing = await memoryRecipeRepo.findBySlug(candidateSlug);
+      const existing = await recipeRepo.findBySlug(candidateSlug);
       // Ha a talált recept az aktuális recept, az nem ütközés
       return existing !== null && existing.id !== id;
     },
     currentRecipe.slug,
   );
 
-  await memoryRecipeRepo.updateRecipe(id, {
+  await recipeRepo.updateRecipe(id, {
     title: parsed.data.title,
     slug,
     imageUrl,
@@ -164,5 +166,6 @@ export async function deleteRecipeAction(formData: FormData): Promise<void> {
     return;
   }
 
-  await memoryRecipeRepo.deleteRecipe(id);
+  const recipeRepo = await getRecipeRepo();
+  await recipeRepo.deleteRecipe(id);
 }

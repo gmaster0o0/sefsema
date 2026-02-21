@@ -99,3 +99,37 @@ Created new client component: **`app/components/PageContent.tsx`**
 - State management uses React hooks (useState)
 - No external state management library (Redux, Zustand, etc.)
 - Orange button color applied via inline `style={{ backgroundColor: "#e09849" }}`
+
+## 6. **Refactor: Unified List & Reusable Components** (added Feb 21, 2026)
+
+- Goal: Remove duplication between public and user recipe views and make UI components reusable.
+- Key changes:
+  - Merged `RecipeManager` + `PublicRecipes` into a unified `RecipeList` that displays both public and own recipes on one grid with badges.
+  - Extracted reusable components: `TagSelector`, `RecipeCard`, `FilterSidebar` and hook `useRecipeFilters`.
+  - Simplified `CreateRecipeForm` to use shared `TagSelector` and updated `page.tsx` imports.
+  - Kept `handleUpdate` / `handleDelete` server-action flows, added local state sync to avoid stale UI after `router.refresh()`.
+
+Files added/modified: `app/components/RecipeList.tsx`, `app/components/RecipeCard.tsx`, `app/components/TagSelector.tsx`, `app/components/FilterSidebar.tsx`, `app/hooks/useRecipeFilters.ts`.
+
+## 7. **Tests: Setup and Coverage** (added Feb 21, 2026)
+
+- Testing infra added and tests created:
+  - Unit & component tests: Vitest + @testing-library (files under `tests/unit/`)
+    - `slug.test.ts`, `ingredients.test.ts`, `useRecipeFilters.test.tsx`
+    - Component tests for `TagSelector` and `RecipeCard`
+  - End-to-end: Playwright tests under `tests/e2e/recipe-list.spec.ts` covering list rendering, tag filter, ingredient autocomplete, and edit flow.
+  - Configs: `vitest.config.ts`, `playwright.config.ts`, and `tests/setup.ts` (jest-dom matchers).
+
+- Notes: Fixed hook OR-logic and test DOM cleanup issues during development. Unit/component tests pass locally; E2E flows validated (filtering, autocomplete, edit flow).
+
+## 8. **MongoDB Migration & Repo Switch** (added Feb 21, 2026)
+
+- Added MongoDB support and a migration path from the in-memory store:
+  - `app/lib/mongodb.ts` — MongoClient singleton + pool handling
+  - `app/lib/mongoRecipeRepo.ts` — implements `RecipeRepository` against MongoDB (indexes, slug uniqueness)
+  - `app/lib/getRecipeRepo.ts` — returns `memoryRecipeRepo` or `mongoRecipeRepo` based on `USE_MONGO`
+  - `scripts/migrate-memory-to-mongo.ts` — migration script (upserts users + recipes, preserves `legacyId`)
+  - `package.json` script: `migrate:memory-to-mongo`
+  - `.env.example` / `.env.local` entries: `MONGODB_URI`, `MONGODB_DB`, `USE_MONGO`
+
+- Status: Migration tested locally — `users` and `recipes` collections populated; UI works with Mongo (login, list, edit verified).

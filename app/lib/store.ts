@@ -2,6 +2,9 @@ import { randomUUID, scryptSync } from "crypto";
 
 import type { Role } from "./permissions";
 
+// MongoDB repo will be conditionally imported based on USE_MONGO flag
+const USE_MONGO = process.env.USE_MONGO === "true";
+
 export type User = {
   id: string;
   username: string;

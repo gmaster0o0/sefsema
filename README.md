@@ -29,10 +29,36 @@ and filtering by tags and ingredients.
 
 - Framework: Next.js (App Router) + React
 - UI: Tailwind CSS
-- Data layer: in-memory repository
+- Data layer: in-memory repository (development) or MongoDB (production/optional)
+  - Switch with `USE_MONGO=true` in `.env.local` to enable MongoDB-backed `mongoRecipeRepo`.
 - Auth: session cookie
 - Validation: Zod
 - Slug generation: custom utility (`app/lib/slug.ts`)
+
+### MongoDB & migration
+
+- Files added:
+  - `app/lib/mongodb.ts` — MongoDB client singleton and connection helper
+  - `app/lib/mongoRecipeRepo.ts` — Mongo-backed implementation of the `RecipeRepository` API
+  - `app/lib/getRecipeRepo.ts` — helper that returns the selected repo based on `USE_MONGO`
+  - `scripts/migrate-memory-to-mongo.ts` — one-off migration script to copy in-memory seed data to MongoDB
+
+- Env vars (add to `.env.local`):
+  - `MONGODB_URI` (e.g. `mongodb://localhost:27017`)
+  - `MONGODB_DB` (e.g. `recipe_app`)
+  - `USE_MONGO=true` to enable Mongo usage
+
+- How to migrate seed data into MongoDB:
+
+```bash
+# install runner if you don't have it
+npm install -D tsx dotenv
+
+# ensure .env.local contains MONGODB_URI / MONGODB_DB and USE_MONGO=true
+npm run migrate:memory-to-mongo
+```
+
+The migration script upserts users and recipes from the in-memory repo into `users` and `recipes` collections and preserves the original in-memory id in `legacyId`.
 
 ## Validation and checks
 
