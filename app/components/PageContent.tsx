@@ -1,8 +1,9 @@
 "use client";
 
-import Header from "@/app/components/Header";
-import RecipeList from "@/app/components/RecipeList";
-import { useState } from "react";
+import Header from "./Header";
+import RecipeList from "./RecipeList";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Recipe } from "../lib/store";
 
 type PageContentProps = {
@@ -13,16 +14,31 @@ type PageContentProps = {
 
 export default function PageContent({ currentUser, publicRecipes, userRecipes }: PageContentProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [headerQuery, setHeaderQuery] = useState("");
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const q = searchParams?.get("q") ?? "";
+    setHeaderQuery(q);
+  }, [searchParams]);
 
   return (
     <>
-      <Header currentUser={currentUser} showFilters={showFilters} setShowFilters={setShowFilters} />
+      <Header
+        currentUser={currentUser}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        searchQuery={headerQuery}
+        setSearchQuery={setHeaderQuery}
+      />
       <RecipeList
         publicRecipes={publicRecipes}
         userRecipes={userRecipes}
         currentUser={currentUser}
         showFilters={showFilters}
         setShowFilters={setShowFilters}
+        titleSearch={headerQuery}
       />
     </>
   );

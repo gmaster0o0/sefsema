@@ -2,16 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useRouter } from "next/navigation";
 import { logoutAction } from "../actions/auth";
 
 type HeaderProps = {
   currentUser?: { id: string; username: string; role: string } | null;
   showFilters?: boolean;
   setShowFilters?: Dispatch<SetStateAction<boolean>>;
+  searchQuery?: string;
+  setSearchQuery?: Dispatch<SetStateAction<string>>;
 };
 
-export default function Header({ currentUser, showFilters, setShowFilters }: HeaderProps) {
+export default function Header({ currentUser, showFilters, setShowFilters, searchQuery, setSearchQuery }: HeaderProps) {
+  const router = useRouter();
   return (
     <header className="grid grid-cols-4 gap-6 rounded-3xl border border-black/10 bg-[#3B585E] p-6 shadow-sm">
       {/* Left: Logo (spans 2 rows) */}
@@ -75,6 +79,18 @@ export default function Header({ currentUser, showFilters, setShowFilters }: Hea
         <input
           type="text"
           placeholder="Keress receptek..."
+          value={searchQuery ?? ""}
+          onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              // Navigate to shareable URL with query and open filters
+              const term = (e.currentTarget as HTMLInputElement).value || searchQuery || "";
+              if (term.trim()) {
+                router.push(`/?q=${encodeURIComponent(term.trim())}`);
+              }
+            }
+          }}
           className="flex-1 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
         />
         <button

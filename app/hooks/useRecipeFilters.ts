@@ -5,13 +5,14 @@ import { getAllIngredients, filterIngredientSuggestions, recipeMatchesIngredient
 type UseRecipeFiltersOpts = {
   showFilters?: boolean;
   setShowFilters?: (v: boolean) => void;
+  initialIngredientSearch?: string;
 };
 
 export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts) {
   const [tagFilters, setTagFilters] = useState<string[]>([]);
   const [ingredientFilters, setIngredientFilters] = useState<string[]>([]);
-  const [ingredientSearch, setIngredientSearch] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [ingredientSearch, setIngredientSearch] = useState(opts?.initialIngredientSearch ?? "");
+  const [showSuggestions, setShowSuggestions] = useState(Boolean((opts?.initialIngredientSearch ?? "").trim()));
   const [internalShowFilters, setInternalShowFilters] = useState(false);
   const showFilters = opts?.showFilters ?? internalShowFilters;
   const setShowFilters = opts?.setShowFilters ?? setInternalShowFilters;
@@ -43,6 +44,14 @@ export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts)
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Sync when an external initial search value changes (e.g. header input)
+  useEffect(() => {
+    if (typeof opts?.initialIngredientSearch === "string") {
+      setIngredientSearch(opts.initialIngredientSearch);
+      setShowSuggestions(Boolean(opts.initialIngredientSearch.trim()));
+    }
+  }, [opts?.initialIngredientSearch]);
 
   // Toggle függvények
   const toggleFilterTag = (tag: string) => {

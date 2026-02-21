@@ -18,6 +18,7 @@ type RecipeListProps = {
   currentUser: { id: string; username: string; role: string } | null | undefined;
   showFilters?: boolean;
   setShowFilters?: Dispatch<SetStateAction<boolean>>;
+  titleSearch?: string;
 };
 
 export default function RecipeList({
@@ -26,6 +27,7 @@ export default function RecipeList({
   currentUser,
   showFilters,
   setShowFilters,
+  titleSearch,
 }: RecipeListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [localUserRecipes, setLocalUserRecipes] = useState<Recipe[]>(userRecipes);
@@ -59,6 +61,13 @@ export default function RecipeList({
     handleFilterToggle,
     setShowSuggestions,
   } = useRecipeFilters(allRecipes, { showFilters, setShowFilters });
+
+  // Apply optional title search (header) on top of visibleRecipes
+  const visibleAfterTitle = useMemo(() => {
+    if (!titleSearch || !titleSearch.trim()) return visibleRecipes;
+    const q = titleSearch.trim().toLowerCase();
+    return visibleRecipes.filter((r) => (r.title ?? "").toLowerCase().includes(q));
+  }, [visibleRecipes, titleSearch]);
 
   const effectiveShowFilters = showFilters ?? hookShowFilters;
 
@@ -312,11 +321,11 @@ export default function RecipeList({
             onFocusSearch={() => ingredientSearch.trim() && setShowSuggestions(true)}
           />
           <div className="flex-1">
-            {visibleRecipes.length === 0 ? (
+            {visibleAfterTitle.length === 0 ? (
               <p className="text-sm text-zinc-500">Nincs találat a kiválasztott szűrőkre.</p>
             ) : (
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {visibleRecipes.map((recipe) => (
+                {visibleAfterTitle.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}
                     recipe={recipe}
@@ -331,11 +340,11 @@ export default function RecipeList({
         </div>
       ) : (
         <div className="mt-4">
-          {visibleRecipes.length === 0 ? (
+          {visibleAfterTitle.length === 0 ? (
             <p className="text-sm text-zinc-500">Nincs találat a kiválasztott szűrőkre.</p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {visibleRecipes.map((recipe) => (
+              {visibleAfterTitle.map((recipe) => (
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
