@@ -4,7 +4,12 @@ import { cookies } from "next/headers";
 import { sessionStore, toPublicUser, userRepo } from "./store";
 
 const SESSION_COOKIE = "session";
-const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+const REFRESH_COOKIE = "refresh";
+
+// Access token short TTL (15 minutes)
+const ACCESS_TTL_MS = 1000 * 60 * 15;
+// Refresh token TTL (7 days)
+const REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
 export type SessionUser = ReturnType<typeof toPublicUser>;
 
@@ -43,12 +48,21 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 export async function createSession(userId: string): Promise<void> {
-  const token = await sessionStore.create(userId, SESSION_TTL_MS);
+  // Create short-lived access token and long-lived refresh token
+  const accessToken = await sessionStore.create(userId, ACCESS_TTL_MS, "access");
+  const refreshToken = await sessionStore.create(userId, REFRESH_TTL_MS, "refresh");
+
   const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
+  store.set(SESSION_COOKIE, accessToken, {
     httpOnly: true,
     sameSite: "lax",
-    maxAge: SESSION_TTL_MS / 1000,
+    maxAge: ACCESS_TTL_MS / 1000,
+    path: "/",
+  });
+  store.set(REFRESH_COOKIE, refreshToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: REFRESH_TTL_MS / 1000,
     path: "/",
   });
 }
@@ -56,10 +70,15 @@ export async function createSession(userId: string): Promise<void> {
 export async function destroySession(): Promise<void> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
+  const refresh = store.get(REFRESH_COOKIE)?.value;
   if (token) {
     await sessionStore.delete(token);
   }
+  if (refresh) {
+    await sessionStore.delete(refresh);
+  }
   store.delete(SESSION_COOKIE);
+  store.delete(REFRESH_COOKIE);
 }
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
@@ -83,4 +102,35 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   }
 
   return toPublicUser(user);
+}
+
+// Rotate refresh token and issue a new access token (and refresh token).
+export async function refreshSession(): Promise<boolean> {
+  const store = await cookies();
+  const refresh = store.get(REFRESH_COOKIE)?.value;
+  if (!refresh) return false;
+
+  const session = await sessionStore.get(refresh);
+  if (!session) return false;
+
+  // create new tokens and delete old refresh token
+  const accessToken = await sessionStore.create(session.userId, ACCESS_TTL_MS, "access");
+  const newRefresh = await sessionStore.create(session.userId, REFRESH_TTL_MS, "refresh");
+  await sessionStore.delete(refresh);
+
+  store.set(SESSION_COOKIE, accessToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: ACCESS_TTL_MS / 1000,
+    path: "/",
+  });
+
+  store.set(REFRESH_COOKIE, newRefresh, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: REFRESH_TTL_MS / 1000,
+    path: "/",
+  });
+
+  return true;
 }

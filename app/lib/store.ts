@@ -185,7 +185,7 @@ function cleanupExpiredSessions(): void {
 }
 
 export const memorySessionStore = {
-  async create(userId: string, ttlMs: number): Promise<string> {
+  async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access"): Promise<string> {
     cleanupExpiredSessions();
     const token = randomUUID();
     sessions.set(token, {
@@ -235,9 +235,9 @@ export const sessionStore = (() => {
   }
 
   return {
-    async create(userId: string, ttlMs: number) {
+    async create(userId: string, ttlMs: number, type: "access" | "refresh" = "access") {
       const s = await load();
-      return s.create(userId, ttlMs);
+      return s.create(userId, ttlMs, type);
     },
     async get(token: string) {
       const s = await load();
