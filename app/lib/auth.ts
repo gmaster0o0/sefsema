@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-import { memorySessionStore, toPublicUser, userRepo } from "./store";
+import { sessionStore, toPublicUser, userRepo } from "./store";
 
 const SESSION_COOKIE = "session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -43,7 +43,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 export async function createSession(userId: string): Promise<void> {
-  const token = memorySessionStore.create(userId, SESSION_TTL_MS);
+  const token = await sessionStore.create(userId, SESSION_TTL_MS);
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -57,7 +57,7 @@ export async function destroySession(): Promise<void> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (token) {
-    memorySessionStore.delete(token);
+    await sessionStore.delete(token);
   }
   store.delete(SESSION_COOKIE);
 }
@@ -70,7 +70,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     return null;
   }
 
-  const session = memorySessionStore.get(token);
+  const session = await sessionStore.get(token);
 
   if (!session) {
     return null;

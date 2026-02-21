@@ -24,22 +24,6 @@ export type UserRepository = {
   listUsers: () => Promise<User[]>;
 };
 
-export type Event = {
-  id: string;
-  title: string;
-  startsAt: string;
-  isPublic: boolean;
-  createdAt: string;
-};
-
-export type EventRepository = {
-  createEvent: (input: Omit<Event, "id" | "createdAt">) => Promise<Event>;
-  updateEvent: (id: string, updates: Partial<Omit<Event, "id" | "createdAt">>) => Promise<Event | null>;
-  deleteEvent: (id: string) => Promise<boolean>;
-  listEvents: () => Promise<Event[]>;
-  listPublicEvents: () => Promise<Event[]>;
-};
-
 export type Recipe = {
   id: string;
   userId: string;
@@ -68,24 +52,20 @@ type Session = {
   userId: string;
   expiresAt: number;
 };
-
 // Use globalThis to persist data across HMR in dev mode
 const globalForStore = globalThis as unknown as {
   users: Map<string, User>;
   sessions: Map<string, Session>;
-  events: Map<string, Event>;
   recipes: Map<string, Recipe>;
 };
 
 const users = globalForStore.users ?? new Map<string, User>();
 const sessions = globalForStore.sessions ?? new Map<string, Session>();
-const events = globalForStore.events ?? new Map<string, Event>();
 const recipes = globalForStore.recipes ?? new Map<string, Recipe>();
 
 if (process.env.NODE_ENV !== "production") {
   globalForStore.users = users;
   globalForStore.sessions = sessions;
-  globalForStore.events = events;
   globalForStore.recipes = recipes;
 }
 
@@ -245,7 +225,7 @@ function cleanupExpiredSessions(): void {
 }
 
 export const memorySessionStore = {
-  create(userId: string, ttlMs: number): string {
+  async create(userId: string, ttlMs: number): Promise<string> {
     cleanupExpiredSessions();
     const token = randomUUID();
     sessions.set(token, {
@@ -256,7 +236,7 @@ export const memorySessionStore = {
     return token;
   },
 
-  get(token: string): Session | null {
+  async get(token: string): Promise<Session | null> {
     cleanupExpiredSessions();
     const session = sessions.get(token);
     if (!session) {
@@ -271,10 +251,44 @@ export const memorySessionStore = {
     return session;
   },
 
-  delete(token: string): void {
+  async delete(token: string): Promise<void> {
     sessions.delete(token);
   },
 };
+
+// Export a `sessionStore` that delegates to either the in-memory or Mongo implementation.
+export const sessionStore = (() => {
+  if (!USE_MONGO) return memorySessionStore;
+
+  let impl: {
+    create: (userId: string, ttlMs: number) => Promise<string>;
+    get: (token: string) => Promise<Session | null>;
+    delete: (token: string) => Promise<void>;
+  } | null = null;
+
+  async function load() {
+    if (!impl) {
+      const mod = await import("./mongoSessionStore");
+      impl = mod.mongoSessionStore;
+    }
+    return impl as NonNullable<typeof impl>;
+  }
+
+  return {
+    async create(userId: string, ttlMs: number) {
+      const s = await load();
+      return s.create(userId, ttlMs);
+    },
+    async get(token: string) {
+      const s = await load();
+      return s.get(token);
+    },
+    async delete(token: string) {
+      const s = await load();
+      return s.delete(token);
+    },
+  };
+})();
 
 // Export a `userRepo` that delegates to either the in-memory or Mongo implementation.
 // We avoid statically importing the Mongo implementation because `app/lib/mongodb.ts`
