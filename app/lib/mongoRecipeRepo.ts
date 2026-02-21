@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, OptionalId, Collection } from "mongodb";
 
 import { getMongoDb } from "./mongodb";
 import type { Recipe, RecipeRepository } from "./store";
@@ -47,9 +47,9 @@ export const mongoRecipeRepo: RecipeRepository = {
   async createRecipe(input) {
     await ensureIndexes();
     const db = await getMongoDb();
-    const collection = db.collection<MongoRecipe>(COLLECTION_NAME);
+    const collection = db.collection<MongoRecipe>(COLLECTION_NAME) as unknown as Collection<OptionalId<MongoRecipe>>;
 
-    const doc: Omit<MongoRecipe, "_id"> = {
+    const doc: OptionalId<MongoRecipe> = {
       userId: input.userId,
       title: input.title,
       slug: input.slug,
@@ -61,7 +61,7 @@ export const mongoRecipeRepo: RecipeRepository = {
       createdAt: new Date().toISOString(),
     };
 
-    const result = await collection.insertOne(doc as any);
+    const result = await collection.insertOne(doc);
     const inserted = await collection.findOne({ _id: result.insertedId });
 
     if (!inserted) {

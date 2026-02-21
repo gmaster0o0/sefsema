@@ -18,7 +18,11 @@ export default function CreateRecipeForm() {
   useEffect(() => {
     if (state.ok && formRef.current) {
       formRef.current.reset();
-      setSelectedTags([]);
+      // avoid calling setState synchronously inside effect
+      setTimeout(() => {
+        setSelectedTags([]);
+      }, 0);
+
       setTimeout(() => {
         router.push("/");
       }, 1000);

@@ -1,8 +1,8 @@
-# Recipe app (Next.js App Router)
+# SefSema — Recipe app (Next.js App Router)
 
 ## Overview
 
-Recipe-sharing app built with Next.js App Router, featuring dedicated create/detail pages
+SefSema — Recipe-sharing app built with Next.js App Router, featuring dedicated create/detail pages
 and filtering by tags and ingredients.
 
 ## Key features

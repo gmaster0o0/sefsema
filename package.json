@@ -1,6 +1,7 @@
 {
-  "name": "my-app",
+  "name": "sefsema",
   "version": "0.1.0",
+  "description": "SefSema — recipe-sharing app",
   "private": true,
   "scripts": {
     "dev": "next dev",
