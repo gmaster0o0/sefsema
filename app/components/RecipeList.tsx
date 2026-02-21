@@ -25,6 +25,11 @@ export default function RecipeList({ publicRecipes, userRecipes, currentUser }: 
   const [editingTags, setEditingTags] = useState<string[]>([]);
   const router = useRouter();
 
+  // Szinkronizáljuk a local state-et a prop változásával
+  useEffect(() => {
+    setLocalUserRecipes(userRecipes);
+  }, [userRecipes]);
+
   // Összes recept kombinálása a szűréshez
   const allRecipes = useMemo(() => [...publicRecipes, ...localUserRecipes], [publicRecipes, localUserRecipes]);
 

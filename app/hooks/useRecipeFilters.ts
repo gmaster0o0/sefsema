@@ -72,19 +72,27 @@ export function useRecipeFilters(recipes: Recipe[]) {
 
   // Szűrési függvény
   const filterRecipes = (recipesToFilter: Recipe[]) => {
-    let visible = recipesToFilter;
-
-    // Tag szűrés (OR logika)
-    if (tagFilters.length > 0) {
-      visible = visible.filter((recipe) => tagFilters.some((tag) => (recipe.tags ?? []).includes(tag)));
+    // Ha nincs filter, minden recept látszik
+    if (tagFilters.length === 0 && ingredientFilters.length === 0) {
+      return recipesToFilter;
     }
 
-    // Alapanyag szűrés (OR logika)
-    if (ingredientFilters.length > 0) {
-      visible = visible.filter((recipe) => recipeMatchesIngredients(recipe, ingredientFilters));
-    }
+    return recipesToFilter.filter((recipe) => {
+      // Ha csak tag filter van
+      if (tagFilters.length > 0 && ingredientFilters.length === 0) {
+        return tagFilters.some((tag) => (recipe.tags ?? []).includes(tag));
+      }
 
-    return visible;
+      // Ha csak ingredient filter van
+      if (tagFilters.length === 0 && ingredientFilters.length > 0) {
+        return recipeMatchesIngredients(recipe, ingredientFilters);
+      }
+
+      // Ha mindkettő van - OR logika: tag VAGY ingredient egyezés elég
+      const tagMatch = tagFilters.some((tag) => (recipe.tags ?? []).includes(tag));
+      const ingredientMatch = recipeMatchesIngredients(recipe, ingredientFilters);
+      return tagMatch || ingredientMatch;
+    });
   };
 
   // Szűrt receptek
