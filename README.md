@@ -75,5 +75,13 @@ npm run dev
 ## Note (experimental)
 
 This codebase was produced with an AI assistant (GitHub Copilot) under human supervision
-as an experimental effort, and was manually reviewed.
+as an experimental effort.
 Migration and refactor also produced by AI with human supervision.
+
+## Limitations (details in the TODO)
+
+- UI is not perfect contains visual errors
+- Limited testing, low coverage
+- Unused or limited functions
+- Visual or code duplications (few of them already removed)
+- Random stock photo if the user not uploading a picture for recipe.
