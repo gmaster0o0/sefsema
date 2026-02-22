@@ -178,3 +178,12 @@ Status: Completed and wired into settings page; ready for manual verification in
 - UX: Preview of uploaded avatar shown in the form; form disabled while uploading; success/error feedback provided after save.
 
 Status: Completed and integrated into the settings page; avatar uploads stored locally under `public/avatars/` (manual verification recommended).
+
+## 13. **Appearance: immediate client apply & server persistence** (added Feb 22, 2026)
+
+- Implemented appearance settings UI in `app/settings/AppearanceForm.tsx` (theme, font size; language remains placeholder).
+- Client UX: selecting theme/font-size updates the UI immediately by toggling `body.dark` and body font-size classes (`text-sm|text-base|text-lg`) so users see instant feedback.
+- Server persistence: `updateAppearanceAction` (`app/actions/user.ts`) saves selections to the user profile; `app/layout.tsx` applies saved settings server-side on initial render.
+- CSS: added `app/globals.css` dark-mode variables and quick overrides for common Tailwind classes so dark theme is visible without converting every component to `dark:` variants.
+
+Status: Completed; changes apply immediately on selection and persist after saving. Manual verification recommended (login required for server-side persistence).

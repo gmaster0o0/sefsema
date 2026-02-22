@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "../lib/auth";
 import PasswordForm from "./PasswordForm";
 import ProfileForm from "./ProfileForm";
+import AppearanceForm from "./AppearanceForm";
 
 export default async function SettingsPage() {
   const currentUser = await getCurrentUser();
@@ -37,38 +38,7 @@ export default async function SettingsPage() {
 
         <PasswordForm />
 
-        <section className="mt-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Megjelenes</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-1 text-sm">
-              Tema
-              <select className="rounded-lg border border-black/10 px-3 py-2">
-                <option>Vilagos</option>
-                <option>Sotet</option>
-                <option>Rendszer</option>
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm">
-              Betumeret
-              <select className="rounded-lg border border-black/10 px-3 py-2">
-                <option>Kicsi</option>
-                <option>Normal</option>
-                <option>Nagy</option>
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm sm:col-span-2">
-              Nyelv
-              <select className="rounded-lg border border-black/10 px-3 py-2">
-                <option>Magyar</option>
-                <option>English</option>
-                <option>Deutsch</option>
-              </select>
-            </label>
-          </div>
-          <button className="mt-4 rounded-lg bg-[#e09849] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
-            Mentes
-          </button>
-        </section>
+        <AppearanceForm currentUser={currentUser} />
       </main>
     </div>
   );

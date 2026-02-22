@@ -10,6 +10,9 @@ export type User = {
   username: string;
   email: string;
   avatarUrl?: string | null;
+  // Appearance preferences
+  theme?: "light" | "dark" | "system";
+  fontSize?: "small" | "normal" | "large";
   role: Role;
   passwordHash: string;
   createdAt: string;
@@ -82,6 +85,8 @@ export const memoryUserRepo: UserRepository = {
     const user: User = {
       ...input,
       avatarUrl: input.avatarUrl ?? null,
+      theme: input.theme ?? "system",
+      fontSize: input.fontSize ?? "normal",
       id: randomUUID(),
       createdAt: new Date().toISOString(),
     };

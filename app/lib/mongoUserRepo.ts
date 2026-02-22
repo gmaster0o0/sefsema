@@ -10,6 +10,8 @@ interface MongoUser {
   username: string;
   email: string;
   avatarUrl?: string | null;
+  theme?: string | null;
+  fontSize?: string | null;
   role: string;
   passwordHash: string;
   createdAt: string;
@@ -21,6 +23,8 @@ function toUser(doc: MongoUser): User {
     username: doc.username,
     email: doc.email,
     avatarUrl: doc.avatarUrl ?? null,
+    theme: (doc.theme as User["theme"]) ?? "system",
+    fontSize: (doc.fontSize as User["fontSize"]) ?? "normal",
     role: doc.role as User["role"],
     passwordHash: doc.passwordHash,
     createdAt: doc.createdAt,
@@ -46,6 +50,8 @@ export const mongoUserRepo: UserRepository = {
       username: input.username,
       email: input.email,
       avatarUrl: input.avatarUrl ?? null,
+      theme: (input as any).theme ?? "system",
+      fontSize: (input as any).fontSize ?? "normal",
       role: input.role,
       passwordHash: input.passwordHash,
       createdAt: new Date().toISOString(),
@@ -87,6 +93,8 @@ export const mongoUserRepo: UserRepository = {
     if (updates.email !== undefined) allowedUpdates.email = updates.email;
     if (updates.avatarUrl !== undefined) allowedUpdates.avatarUrl = updates.avatarUrl;
     if (updates.passwordHash !== undefined) allowedUpdates.passwordHash = updates.passwordHash;
+    if ((updates as any).theme !== undefined) allowedUpdates.theme = (updates as any).theme;
+    if ((updates as any).fontSize !== undefined) allowedUpdates.fontSize = (updates as any).fontSize;
 
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(id) },

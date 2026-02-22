@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getCurrentUser } from "./lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,14 +18,26 @@ export const metadata: Metadata = {
   description: "SefSema — recipe-sharing app",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = await getCurrentUser();
+
+  const themeClass = currentUser?.theme === "dark" ? "dark" : "";
+  const fontClassMap: Record<string, string> = {
+    small: "text-sm",
+    normal: "text-base",
+    large: "text-lg",
+  };
+  const fontClass = fontClassMap[currentUser?.fontSize ?? "normal"] || "text-base";
+
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased ${themeClass} ${fontClass}`}>
+        {children}
+      </body>
     </html>
   );
 }

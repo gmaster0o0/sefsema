@@ -105,3 +105,39 @@ export async function changePasswordAction(_prevState: UserActionState, formData
 
   return { ok: true, message: "Password changed successfully." };
 }
+
+const appearanceSchema = z.object({
+  theme: z.enum(["light", "dark", "system"]).optional(),
+  fontSize: z.enum(["small", "normal", "large"]).optional(),
+});
+
+export async function updateAppearanceAction(
+  _prevState: UserActionState,
+  formData: FormData,
+): Promise<UserActionState> {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return { ok: false, message: "Not authenticated." };
+  }
+
+  const candidate = {
+    theme: getString(formData, "theme") || undefined,
+    fontSize: getString(formData, "fontSize") || undefined,
+  };
+
+  const parsed = appearanceSchema.safeParse(candidate);
+  if (!parsed.success) {
+    return { ok: false, message: "Invalid appearance selection." };
+  }
+
+  const updates: Partial<{ theme: string; fontSize: string }> = {};
+  if (parsed.data.theme) updates.theme = parsed.data.theme;
+  if (parsed.data.fontSize) updates.fontSize = parsed.data.fontSize;
+
+  const updated = await userRepo.updateUser(currentUser.id, updates as any);
+  if (!updated) {
+    return { ok: false, message: "Failed to update appearance." };
+  }
+
+  return { ok: true, message: "Appearance settings saved." };
+}

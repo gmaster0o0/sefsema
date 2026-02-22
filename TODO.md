@@ -3,7 +3,7 @@
 ## UI/UX
 
 - [x] User login status display remove or rework
-- [ ] Implement dark mode toggle
+- [x] Implement dark mode toggle
 - [ ] Improve accessibility (ARIA labels, keyboard navigation)
 - [ ] Create pagination or infinite scroll for recipe list
 - [ ] Add empty state designs (no recipes, no search results)
