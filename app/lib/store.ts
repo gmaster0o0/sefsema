@@ -9,6 +9,7 @@ export type User = {
   id: string;
   username: string;
   email: string;
+  avatarUrl?: string | null;
   role: Role;
   passwordHash: string;
   createdAt: string;
@@ -18,6 +19,7 @@ export type PublicUser = Omit<User, "passwordHash">;
 
 export type UserRepository = {
   createUser: (input: Omit<User, "id" | "createdAt">) => Promise<User>;
+  updateUser: (id: string, updates: Partial<Omit<User, "id" | "createdAt" | "role">>) => Promise<User | null>;
   findByEmail: (email: string) => Promise<User | null>;
   findByUsername: (username: string) => Promise<User | null>;
   getById: (id: string) => Promise<User | null>;
@@ -79,12 +81,28 @@ export const memoryUserRepo: UserRepository = {
   async createUser(input) {
     const user: User = {
       ...input,
+      avatarUrl: input.avatarUrl ?? null,
       id: randomUUID(),
       createdAt: new Date().toISOString(),
     };
 
     users.set(user.id, user);
     return user;
+  },
+
+  async updateUser(id, updates) {
+    const existing = users.get(id);
+    if (!existing) {
+      return null;
+    }
+
+    const updated: User = {
+      ...existing,
+      ...updates,
+    };
+
+    users.set(id, updated);
+    return updated;
   },
 
   async findByEmail(email) {
@@ -281,6 +299,10 @@ export const userRepo: UserRepository = (() => {
       const r = await load();
       return r.createUser(input);
     },
+    async updateUser(id, updates) {
+      const r = await load();
+      return r.updateUser(id, updates);
+    },
     async findByEmail(email) {
       const r = await load();
       return r.findByEmail(email);
@@ -319,6 +341,7 @@ function seedUsers() {
       id: seedUserId,
       username: "maria",
       email: "maria@example.com",
+      avatarUrl: null,
       role: "user",
       passwordHash: createSeedPasswordHash("demo1234"),
       createdAt: new Date("2026-02-14T09:00:00Z").toISOString(),

@@ -9,6 +9,7 @@ interface MongoUser {
   _id: ObjectId;
   username: string;
   email: string;
+  avatarUrl?: string | null;
   role: string;
   passwordHash: string;
   createdAt: string;
@@ -19,6 +20,7 @@ function toUser(doc: MongoUser): User {
     id: doc._id.toString(),
     username: doc.username,
     email: doc.email,
+    avatarUrl: doc.avatarUrl ?? null,
     role: doc.role as User["role"],
     passwordHash: doc.passwordHash,
     createdAt: doc.createdAt,
@@ -43,6 +45,7 @@ export const mongoUserRepo: UserRepository = {
     const doc: OptionalId<MongoUser> = {
       username: input.username,
       email: input.email,
+      avatarUrl: input.avatarUrl ?? null,
       role: input.role,
       passwordHash: input.passwordHash,
       createdAt: new Date().toISOString(),
@@ -73,6 +76,25 @@ export const mongoUserRepo: UserRepository = {
     const collection = db.collection<MongoUser>(COLLECTION_NAME);
     const doc = await collection.findOne({ _id: new ObjectId(id) });
     return doc ? toUser(doc) : null;
+  },
+
+  async updateUser(id, updates) {
+    const db = await getMongoDb();
+    const collection = db.collection<MongoUser>(COLLECTION_NAME);
+
+    const allowedUpdates: Partial<Omit<MongoUser, "_id" | "role" | "createdAt">> = {};
+    if (updates.username !== undefined) allowedUpdates.username = updates.username;
+    if (updates.email !== undefined) allowedUpdates.email = updates.email;
+    if (updates.avatarUrl !== undefined) allowedUpdates.avatarUrl = updates.avatarUrl;
+    if (updates.passwordHash !== undefined) allowedUpdates.passwordHash = updates.passwordHash;
+
+    const result = await collection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: allowedUpdates },
+      { returnDocument: "after" },
+    );
+
+    return result ? toUser(result) : null;
   },
 
   async listUsers() {

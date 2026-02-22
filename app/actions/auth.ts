@@ -64,6 +64,7 @@ export async function registerAction(_prevState: AuthState, formData: FormData):
   const user = await userRepo.createUser({
     username: parsed.data.username,
     email: parsed.data.email,
+    avatarUrl: null,
     role: "user",
     passwordHash,
   });

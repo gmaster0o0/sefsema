@@ -151,3 +151,30 @@ Files added/modified: `app/components/RecipeList.tsx`, `app/components/RecipeCar
 - Moved the "+ Új recept" button next to the user chip and aligned button heights with fixed `h-10`.
 - Added placeholder pages for `/settings` and `/my-recipes` routes.
 - Marked the login status rework as completed in `TODO.md`.
+
+## 11. **Password Change Implementation** (added Feb 22, 2026)
+
+- Implemented user password change flow in settings.
+- Added client component: `app/settings/PasswordForm.tsx` — form with current password, new password, confirm, loading and success/error messages.
+- Added server action: `changePasswordAction` in `app/actions/user.ts` — validates current password, ensures new password meets min length and confirmation, checks new != current, hashes and saves new password.
+- Updated repository types and Mongo implementation to allow updating `passwordHash` via `updateUser` (`app/lib/store.ts`, `app/lib/mongoUserRepo.ts`).
+- UI: replaced static inputs with `PasswordForm` on `app/settings/page.tsx`.
+
+Functional effects:
+
+- Current password verification using `verifyPassword` from `app/lib/auth.ts`.
+- New passwords are hashed with `scrypt` via `hashPassword` before persisting.
+- Success and error feedback shown in the settings UI.
+
+Status: Completed and wired into settings page; ready for manual verification in the running app.
+
+## 12. **Profile & Avatar Management** (added Feb 22, 2026)
+
+- Implemented profile editing in settings with `ProfileForm` (`app/settings/ProfileForm.tsx`): username, email, and avatar upload UI with drag & drop and file picker.
+- Server action: `updateProfileAction` in `app/actions/user.ts` — validates username/email, accepts avatar URL from upload, updates user via repository.
+- Avatar upload endpoint: `app/api/upload-avatar/route.ts` — accepts image files, validates type/size, writes to `public/avatars/` and returns relative `avatarUrl`.
+- Storage & docs: added `public/avatars/.gitkeep`, `.gitignore` rule for `public/avatars/*`, and README note about local storage limitation.
+- Data layer: `User` model extended with `avatarUrl` and `userRepo.updateUser` supports `avatarUrl` updates; `app/lib/mongoUserRepo.ts` maps avatar field.
+- UX: Preview of uploaded avatar shown in the form; form disabled while uploading; success/error feedback provided after save.
+
+Status: Completed and integrated into the settings page; avatar uploads stored locally under `public/avatars/` (manual verification recommended).

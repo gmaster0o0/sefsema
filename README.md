@@ -87,3 +87,4 @@ For detailed development roadmap and planned improvements, see [TODO.md](TODO.md
 - Unused or limited functions
 - Visual or code duplications (few of them already removed)
 - Random stock photo if the user not uploading a picture for recipe.
+- Avatar images are stored locally in `public/avatars/` (not suitable for production; consider cloud storage like S3, Cloudinary)
