@@ -18,7 +18,7 @@ and filtering by tags and ingredients.
 ## Seed data
 
 - 5 system recipes with tags and preparation.
-- Extra seed user: `maria` (maria@example.com / demo1234) + 2 public recipes.
+- Extra seed user: `maria` (maria@example.com / demo1234) — 2 public recipes + 1 private recipe (visible when logged in).
 - Restart the dev server to re-seed data.
 
 ## API documentation

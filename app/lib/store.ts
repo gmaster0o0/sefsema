@@ -518,8 +518,21 @@ function seedRecipes() {
     recipes.set(seedRecipe3.id, seedRecipe3);
     recipes.set(seedRecipe4.id, seedRecipe4);
     recipes.set(seedRecipe5.id, seedRecipe5);
+    const seedRecipe8: Recipe = {
+      id: "seed-8",
+      userId: seedUserId,
+      title: "Saját titkos recept",
+      slug: "sajat-titkos-recept",
+      imageUrl: "",
+      ingredients: ["1 csipet titok", "élvezet"],
+      preparation: "Ez egy privát teszt recept.",
+      tags: ["Teszt", "Privát"],
+      isPublic: false,
+      createdAt: new Date("2026-02-20T08:00:00Z").toISOString(),
+    };
     recipes.set(seedRecipe6.id, seedRecipe6);
     recipes.set(seedRecipe7.id, seedRecipe7);
+    recipes.set(seedRecipe8.id, seedRecipe8);
   }
 }
 

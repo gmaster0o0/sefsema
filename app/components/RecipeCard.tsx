@@ -9,11 +9,24 @@ type RecipeCardProps = {
   isOwn?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  showVisibility?: boolean;
+  currentUserId?: string | null;
 };
 
-export default function RecipeCard({ recipe, isOwn = false, onEdit, onDelete }: RecipeCardProps) {
+export default function RecipeCard({
+  recipe,
+  isOwn = false,
+  onEdit,
+  onDelete,
+  showVisibility = true,
+}: RecipeCardProps) {
   return (
-    <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-black/10 shadow-sm">
+    <li
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-black/10 shadow-sm"
+      data-recipe-user={recipe.userId}
+      data-current-user={currentUserId ?? ""}
+      data-is-own={isOwn ? "true" : "false"}
+    >
       <Link href={`/recept/${recipe.slug}`}>
         {recipe.imageUrl ? (
           <div className="relative h-48 w-full">
@@ -28,13 +41,15 @@ export default function RecipeCard({ recipe, isOwn = false, onEdit, onDelete }: 
           <div className="flex items-start justify-between gap-2">
             <p className="flex-1 font-semibold text-zinc-900">{recipe.title}</p>
             <div className="flex flex-col gap-1">
-              <span
-                className={`flex-shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
-                  recipe.isPublic ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-700"
-                }`}
-              >
-                {recipe.isPublic ? "Publikus" : "Privát"}
-              </span>
+              {showVisibility && (
+                <span
+                  className={`flex-shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
+                    recipe.isPublic ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-700"
+                  }`}
+                >
+                  {recipe.isPublic ? "Publikus" : "Privát"}
+                </span>
+              )}
               {isOwn && (
                 <span className="flex-shrink-0 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                   Saját

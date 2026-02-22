@@ -60,7 +60,11 @@ export default function RecipeList({
     handleIngredientSearchChange,
     handleFilterToggle,
     setShowSuggestions,
-  } = useRecipeFilters(allRecipes, { showFilters, setShowFilters });
+    onlyOwn,
+    onlyPublic,
+    setOnlyOwn,
+    setOnlyPublic,
+  } = useRecipeFilters(allRecipes, { showFilters, setShowFilters, currentUserId: currentUser?.id });
 
   // Apply optional title search (header) on top of visibleRecipes
   const visibleAfterTitle = useMemo(() => {
@@ -319,6 +323,10 @@ export default function RecipeList({
             searchInputRef={searchInputRef}
             suggestionsRef={suggestionsRef}
             onFocusSearch={() => ingredientSearch.trim() && setShowSuggestions(true)}
+            onlyOwn={onlyOwn}
+            setOnlyOwn={setOnlyOwn}
+            onlyPublic={onlyPublic}
+            setOnlyPublic={setOnlyPublic}
           />
           <div className="flex-1">
             {visibleAfterTitle.length === 0 ? (
@@ -330,6 +338,8 @@ export default function RecipeList({
                     key={recipe.id}
                     recipe={recipe}
                     isOwn={isOwnRecipe(recipe)}
+                    showVisibility={Boolean(currentUser)}
+                    currentUserId={currentUser?.id}
                     onEdit={() => setEditingId(recipe.id)}
                     onDelete={() => handleDelete(recipe.id)}
                   />
@@ -349,6 +359,8 @@ export default function RecipeList({
                   key={recipe.id}
                   recipe={recipe}
                   isOwn={isOwnRecipe(recipe)}
+                  showVisibility={Boolean(currentUser)}
+                  currentUserId={currentUser?.id}
                   onEdit={() => setEditingId(recipe.id)}
                   onDelete={() => handleDelete(recipe.id)}
                 />

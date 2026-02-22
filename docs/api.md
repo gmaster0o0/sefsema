@@ -130,6 +130,8 @@ Response (200):
 ]
 ```
 
+Megjegyzés: a válasz tartalmazza a bejelentkezett felhasználó privát receptjeit is (például a seedelt "Saját titkos recept" id=`seed-8`), ezek csak a tulajdonos számára láthatók.
+
 Hibak:
 
 - 401: nincs bejelentkezve

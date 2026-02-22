@@ -6,6 +6,7 @@ type UseRecipeFiltersOpts = {
   showFilters?: boolean;
   setShowFilters?: (v: boolean) => void;
   initialIngredientSearch?: string;
+  currentUserId?: string | null;
 };
 
 export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts) {
@@ -16,6 +17,9 @@ export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts)
   const [internalShowFilters, setInternalShowFilters] = useState(false);
   const showFilters = opts?.showFilters ?? internalShowFilters;
   const setShowFilters = opts?.setShowFilters ?? setInternalShowFilters;
+  const currentUserId = opts?.currentUserId ?? null;
+  const [onlyOwn, setOnlyOwn] = useState(() => Boolean(currentUserId));
+  const [onlyPublic, setOnlyPublic] = useState<boolean>(true);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +84,7 @@ export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts)
       setTagFilters([]);
       setIngredientFilters([]);
       setIngredientSearch("");
+      setOnlyOwn(false);
       setShowFilters(false);
       return;
     }
@@ -88,12 +93,22 @@ export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts)
 
   // Szűrési függvény
   const filterRecipes = (recipesToFilter: Recipe[]) => {
-    // Ha nincs filter, minden recept látszik
-    if (tagFilters.length === 0 && ingredientFilters.length === 0) {
-      return recipesToFilter;
+    // Apply ownership/public filters when requested
+    let working = recipesToFilter;
+    if (onlyOwn || onlyPublic) {
+      working = working.filter((r) => {
+        const ownMatch = onlyOwn && currentUserId ? r.userId === currentUserId : false;
+        const publicMatch = onlyPublic ? r.isPublic : false;
+        return ownMatch || publicMatch;
+      });
     }
 
-    return recipesToFilter.filter((recipe) => {
+    // If no tag/ingredient filters, return current working set
+    if (tagFilters.length === 0 && ingredientFilters.length === 0) {
+      return working;
+    }
+
+    return working.filter((recipe) => {
       // Ha csak tag filter van
       if (tagFilters.length > 0 && ingredientFilters.length === 0) {
         return tagFilters.some((tag) => (recipe.tags ?? []).includes(tag));
@@ -136,6 +151,10 @@ export function useRecipeFilters(recipes: Recipe[], opts?: UseRecipeFiltersOpts)
     removeIngredientFilter,
     handleIngredientSearchChange,
     handleFilterToggle,
+    onlyOwn,
+    onlyPublic,
+    setOnlyOwn,
+    setOnlyPublic,
     filterRecipes,
     setShowSuggestions,
   };

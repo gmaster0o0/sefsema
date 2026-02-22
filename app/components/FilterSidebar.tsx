@@ -21,6 +21,11 @@ type FilterSidebarProps = {
   searchInputRef: RefObject<HTMLInputElement | null>;
   suggestionsRef: RefObject<HTMLDivElement | null>;
   onFocusSearch: () => void;
+  // Ownership filter
+  onlyOwn?: boolean;
+  setOnlyOwn?: (v: boolean) => void;
+  onlyPublic?: boolean;
+  setOnlyPublic?: (v: boolean) => void;
 };
 
 export default function FilterSidebar({
@@ -36,10 +41,38 @@ export default function FilterSidebar({
   searchInputRef,
   suggestionsRef,
   onFocusSearch,
+  onlyOwn,
+  setOnlyOwn,
+  onlyPublic,
+  setOnlyPublic,
 }: FilterSidebarProps) {
   return (
     <aside className="md:w-64 lg:w-72">
       <div className="rounded-2xl border border-black/10 bg-zinc-50 p-4">
+        {/* Saját / Publikus szekció */}
+        <div className="mb-4 border-b border-black/5 pb-4">
+          <p className="mb-2 text-sm font-semibold text-zinc-700">Láthatóság</p>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(onlyPublic)}
+                onChange={(e) => setOnlyPublic && setOnlyPublic(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <span>Publikus receptek</span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={Boolean(onlyOwn)}
+                onChange={(e) => setOnlyOwn && setOnlyOwn(e.target.checked)}
+                className="h-4 w-4"
+              />
+              <span>Saját receptek</span>
+            </label>
+          </div>
+        </div>
         {/* Tag szűrő */}
         <TagSelector selectedTags={tagFilters} onToggle={onToggleTag} variant="filter" />
 
