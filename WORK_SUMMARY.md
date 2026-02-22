@@ -133,3 +133,21 @@ Files added/modified: `app/components/RecipeList.tsx`, `app/components/RecipeCar
   - `.env.example` / `.env.local` entries: `MONGODB_URI`, `MONGODB_DB`, `USE_MONGO`
 
 - Status: Migration tested locally — `users` and `recipes` collections populated; UI works with Mongo (login, list, edit verified).
+
+## 9. **Project TODO List & Security Tasks** (added Feb 22, 2026)
+
+- Created comprehensive `TODO.md` file with categorized development tasks:
+  - **UI/UX:** Responsive design, dark mode, accessibility, notifications, etc.
+  - **Features:** User profiles, favorites, sharing, recommendations, etc.
+  - **Testing:** Unit/integration/E2E test expansion and coverage improvements.
+  - **Security & Authentication:** OAuth2 integration, strict password validation, 2FA, account lockout, and other security enhancements.
+  - Additional categories: Performance & Optimization, Backend & Database, DevOps & Deployment.
+- Identified priority security issue: Current implementation accepts weak passwords and lacks OAuth2 integration—added to backlog.
+
+## 10. **Header Auth UI Rework** (added Feb 22, 2026)
+
+- Replaced the large login status block with a compact user chip dropdown.
+- Added dropdown actions: Settings, My recipes, and Logout.
+- Moved the "+ Új recept" button next to the user chip and aligned button heights with fixed `h-10`.
+- Added placeholder pages for `/settings` and `/my-recipes` routes.
+- Marked the login status rework as completed in `TODO.md`.

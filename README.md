@@ -78,7 +78,9 @@ This codebase was produced with an AI assistant (GitHub Copilot) under human sup
 as an experimental effort.
 Migration and refactor also produced by AI with human supervision.
 
-## Limitations (details in the TODO)
+## Limitations
+
+For detailed development roadmap and planned improvements, see [TODO.md](TODO.md)
 
 - UI is not perfect contains visual errors
 - Limited testing, low coverage
