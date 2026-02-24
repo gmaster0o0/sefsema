@@ -7,23 +7,26 @@
 - [ ] Improve accessibility (ARIA labels, keyboard navigation)
 - [ ] Create pagination or infinite scroll for recipe list
 - [ ] Add empty state designs (no recipes, no search results)
-- [ ] Optimize font sizes and spacing across breakpoints
+- [x] Optimize font sizes and spacing across breakpoints
 - [ ] Improve recipe detail modal styling and mobile layout
 - [ ] Add toast notifications for user actions (success/error messages)
 - [ ] Design and implement recipe rating/review display
 
 ## Features
 
-- [ ] Implement user profile page with user's recipes
+- [x] Implement user profile page with user's recipes
 - [ ] Add recipe favorites/bookmarks functionality
-- [ ] Create user preferences/settings page
+- [x] Create user preferences/settings page
 - [ ] Create homepage with featured recipes
 - [ ] Improve recipe picture uploading.
 
 ## Testing
 
-- [ ] Expand unit tests for utility functions (auth, slug, tags)
-- [ ] Add tests for all React components (complete coverage)
+- [ ] Expand unit tests for utility functions
+	- [ ] auth
+	- [x] slug
+	- [x] tags
+- [x] Add tests for all React components (complete coverage)
 - [ ] Implement API route testing
 - [ ] Add integration tests for auth flow
 - [ ] Create E2E tests for main user workflows (CRUD recipes)

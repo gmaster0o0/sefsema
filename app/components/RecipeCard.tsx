@@ -19,6 +19,7 @@ export default function RecipeCard({
   onEdit,
   onDelete,
   showVisibility = true,
+  currentUserId,
 }: RecipeCardProps) {
   return (
     <li
